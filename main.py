@@ -31,8 +31,6 @@ while True :
     print(datetime.now(tz))
     for track in history[:3] :
         print(track)
-    
-    print()
 
     with open("last_scrobble.log") as f :
         last_scrobble = [line.strip() for line in f.readlines()[:3]]
@@ -45,6 +43,8 @@ while True :
         network.scrobble(title=most_recent[0], artist=most_recent[1], album=most_recent[2], timestamp=time.time())
         with open("last_scrobble.log", "w") as f :
             f.writelines([stat + "\n" for stat in most_recent])
+    
+    print()
     
     time.sleep(60)
 
