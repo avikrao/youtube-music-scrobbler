@@ -33,12 +33,14 @@ while True :
         print(track)
 
     with open("last_scrobble.log") as f :
-        last_scrobble = [line.strip() for line in f.readlines()[:3]]
+        lines = f.readlines()
+        last_three = [[line.strip() for line in lines[i*4 : (i*4) + 3]] for i in range(3)]
 
     most_recent_track = history[0]
     most_recent = [most_recent_track["title"].strip(), most_recent_track["artist"].strip(), most_recent_track["album"].strip()]
+    print(most_recent)
 
-    if most_recent != last_scrobble :
+    if not most_recent in last_three :
         print("New song scrobbled!")
         network.scrobble(title=most_recent[0], artist=most_recent[1], album=most_recent[2], timestamp=time.time())
         with open("last_scrobble.log", "w") as f :
