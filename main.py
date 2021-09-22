@@ -5,6 +5,8 @@ import pylast
 import json
 import time
 
+SONGS_TILL_RESET = 5
+
 tz = timezone('US/Eastern')
 ytm = YTMusic("headers_auth.json")
 
@@ -23,31 +25,37 @@ network = pylast.LastFMNetwork(
     password_hash=PASS_HASH,
 )
 
+with open("last_scrobble.log", "w") as f :
+    pass
+
+song_counter = 0
+logged_songs = []
+
 while True :
+
+    if song_counter >= SONGS_TILL_RESET :
+        with open("last_scrobble.log", "w") as f :
+            song_counter = 0
+            logged_songs = []
 
     raw_history = ytm.get_history()[:5]
     history = [{"title": song["title"], "artist": song["artists"][0]["name"], "album": song["album"]["name"] } for song in raw_history]
 
     print(datetime.now(tz))
-    for track in history[:3] :
-        print(track)
-
-    with open("last_scrobble.log") as f :
-        lines = f.readlines()
-        last_three = [[line.strip() for line in lines[i*4 : (i*4) + 3]] for i in range(3)]
-
     most_recent_track = history[0]
     most_recent = [most_recent_track["title"].strip(), most_recent_track["artist"].strip(), most_recent_track["album"].strip()]
     print(most_recent)
 
-    if not most_recent in last_three :
+    if not most_recent in logged_songs :
         print("New song scrobbled!")
         network.scrobble(title=most_recent[0], artist=most_recent[1], album=most_recent[2], timestamp=time.time())
-        with open("last_scrobble.log", "w") as f :
+        logged_songs.append(most_recent)
+        song_counter += 1
+        with open("last_scrobble.log", "a") as f :
             f.writelines([stat + "\n" for stat in most_recent])
+            f.write("\n")
     
     print()
-    
     time.sleep(60)
 
 
