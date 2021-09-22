@@ -35,8 +35,8 @@ while True :
 
     if song_counter >= SONGS_TILL_RESET :
         with open("last_scrobble.log", "w") as f :
-            song_counter = 0
-            logged_songs = []
+            song_counter = 1
+            logged_songs = [logged_songs[-1]]
 
     raw_history = ytm.get_history()[:5]
     history = [{"title": song["title"], "artist": song["artists"][0]["name"], "album": song["album"]["name"] } for song in raw_history]
