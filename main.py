@@ -16,7 +16,7 @@ with open("lastfm_auth.json", "r") as f :
 API_KEY = lastfm_auth["API_KEY"]
 API_SECRET = lastfm_auth["SECRET_KEY"]
 USERNAME = lastfm_auth["USERNAME"]
-PASS_HASH = pylast.md5(lastfm_auth["PASSWORD"])
+PASS_HASH = lastfm_auth["PASS_HASH"]
 
 network = pylast.LastFMNetwork(
     api_key=API_KEY,
