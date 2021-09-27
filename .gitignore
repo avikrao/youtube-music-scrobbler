@@ -1,5 +1,8 @@
 headers_auth.json
 lastfm_auth.json
+auth.json
+
+testing.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
