@@ -48,11 +48,13 @@ def main() :
                 song_counter = 1
                 logged_songs = [logged_songs[-1]]
 
-        raw_history = ytm.get_history()[:5]
-        history = [{"title": song["title"], "artist": song["artists"][0]["name"], "album": song["album"]["name"] } for song in raw_history]
-
+        raw_history = ytm.get_history()[0]
+        
         print(datetime.now(tz))
-        most_recent_track = history[0]
+        if not raw_history or not raw_history["title"] or not raw_history["artists"] or not raw_history["album"] :
+            continue
+        
+        most_recent_track = {"title": raw_history["title"], "artist": raw_history["artists"][0]["name"], "album": raw_history["album"]["name"]}
         most_recent = [most_recent_track["title"].strip(), most_recent_track["artist"].strip(), most_recent_track["album"].strip()]
         print(most_recent)
 
