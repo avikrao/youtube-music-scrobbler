@@ -1,30 +1,25 @@
 from requests.packages import urllib3
 from ytmusicapi import YTMusic
-from datetime import datetime
-from pytz import timezone
-import pushsafer
-import requests
 import pylast
 import json
 import time
+import os 
 
+PING_FILE = "/data/pinglog.txt"
+LOG_FILE = "/data/scrobblelog.json"
+LOG_LENGTH = 20
 SONGS_TILL_RESET = 5
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 default_params = ["" for i in range(13)]
 
 with open("auth.json", "r") as f :
     auth = json.load(f)
     lastfm_auth = auth["lastfm"]
-    pushsafer_auth = auth["pushsafer"]
 
-pushsafer.init(pushsafer_auth["API_KEY"])
+def main(logs) :
 
-def main() :
-
-    tz = timezone('US/Eastern')
     ytm = YTMusic("headers_auth.json")
-
-    
 
     network = pylast.LastFMNetwork(
         api_key=lastfm_auth["API_KEY"],
@@ -32,8 +27,6 @@ def main() :
         username=lastfm_auth["USERNAME"],
         password_hash=lastfm_auth["PASS_HASH"],
     )
-
-    push_client = pushsafer.Client("", pushsafer_auth["API_KEY"])
 
     with open("last_scrobble.log", "w") as f :
         pass
@@ -50,35 +43,65 @@ def main() :
 
         raw_history = ytm.get_history()[0]
         
-        print(datetime.now(tz))
+        timestamp = str(time.time())
+
         if not raw_history or not raw_history["title"] or not raw_history["artists"] or not raw_history["album"] :
             continue
         
         most_recent_track = {"title": raw_history["title"], "artist": raw_history["artists"][0]["name"], "album": raw_history["album"]["name"]}
         most_recent = [most_recent_track["title"].strip(), most_recent_track["artist"].strip(), most_recent_track["album"].strip()]
-        print(most_recent)
+
+        if most_recent:
+            new_entry = {
+                "timestamp": timestamp,
+                "title": most_recent[0],
+                "artist": most_recent[1],
+                "album": most_recent[2]
+            }
+        else:
+            new_entry = {
+                "timestamp": timestamp,
+                "error": True
+            }
 
         if not most_recent in logged_songs :
-            print("New song scrobbled!")
+
             network.scrobble(title=most_recent[0], artist=most_recent[1], album=most_recent[2], timestamp=time.time())
             logged_songs.append(most_recent)
             song_counter += 1
+
             with open("last_scrobble.log", "a") as f :
                 f.writelines([stat + "\n" for stat in most_recent])
                 f.write("\n")
+
+            logs.append(new_entry)
+            if len(logs) > LOG_LENGTH:
+                logs = logs[(len(logs)-LOG_LENGTH):]
+            
+            with open(LOG_FILE, "w") as f:
+                json.dump(logs, f, indent=2)
         
-        print()
+        with open(PING_FILE, "w") as f:
+            f.write(str(time.time()))
+
         time.sleep(60)
 
-try :
-    main()
-except KeyboardInterrupt: 
-    pushsafer.Client("").send_message("Script voluntarily stopped (KeyboardInterrupt)", "YTMScrobbler Error", pushsafer_auth["DEVICE_ID"], *default_params)
-    exit(0)
-except Exception as e:
-    error = getattr(e, 'message', repr(e))
-    print(error)
-    pushsafer.Client("").send_message(error, "YTMScrobbler Error", pushsafer_auth["DEVICE_ID"], *default_params)
+if __name__ == '__main__':
+
+    if not os.path.exists(LOG_FILE):
+        logs = []
+    else:
+        with open(LOG_FILE, "r") as f:
+            logs = json.load(f)
+
+    try:
+        main(logs)
+    except:
+        timestamp = str(time.time())
+        logs.append({"timestamp": timestamp, "error": True})
+
+        with open(LOG_FILE, "w") as f:
+            json.dump(logs, f, indent=2)
 
 
 
