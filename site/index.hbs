@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html class="bg-[#0c4839]">
+    <head>
+        <title>Scrobbler Monitoring Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body>
+        <div class="flex flex-col h-screen">
+            <div class="flex sm:flex-col lg:flex-row h-1/4 m-10 rounded-2xl items-center justify-center">
+                <div class="flex h-full sm:w-full lg:w-1/4 relative">
+                    <div class="restart flex border-yellow-500 border-2 lg:w-1/2 lg:h-1/2 absolute left-0 right-0 top-0 bottom-0 
+                                m-auto rounded-3xl justify-center items-center text-yellow-500
+                                hover:bg-yellow-500 hover:text-[#0c4839] cursor-pointer sm:w-4/5 sm:h-4/5">
+                        <h1 class="sm:text-7xl lg:text-2xl">Restart</h1>
+                    </div>
+                </div>
+                <div class="flex border-4 border-orange-700 h-full sm:w-5/6 lg:w-3/4 items-center justify-center 
+                            rounded-2xl ">
+                {{#if recent }}
+                    <h2 class="text-green-400 sm:text-4xl lg:text-3xl">Status: UP - {{ timestamp }}</h2>
+                {{else}}
+                    <h2 class="text-red-500 sm:text-4xl lg:text-3xl">Status: DOWN - {{ timestamp }}</h2>
+                {{/if}}
+                </div>
+            </div>
+            <div class="console flex flex-col border-2 border-orange-700 h-3/4 overflow-auto mx-10 my-5 bg-black font-mono
+                        pl-5 pt-5 sm:text-2xl lg:text-lg">
+                {{#each history}}
+                    {{#if this.error }}
+                        <p class="text-red-500">Error at {{this.timestamp}}</p>
+                    {{else}}
+                        <p class="text-white">Scrobbled {{this.title}} by {{this.artist}} at {{this.timestamp}}</p>
+                    {{/if}}
+                {{/each}}
+
+            </div>
+        </div>
+        <script>
+            const restartButton = document.querySelector(".restart");
+            const terminal = document.querySelector(".console");
+            restartButton.addEventListener("click", async (event) => {
+                const response = await fetch("restart");
+                const responseObj = await response.json();
+                const newLog = document.createElement("p");
+                if (responseObj.error) {
+                    newLog.className = "text-red-500";
+                    newLog.textContent = responseObj.error;
+                } else if (responseObj.stderr) {
+                    newLog.className = "text-orange-400";
+                    newLog.textContent = responseObj.stderr;
+                } else {
+                    newLog.className = "text-green-500";
+                    newLog.textContent = responseObj.stdout;
+                }
+                terminal.insertBefore(newLog, terminal.children[0]);
+            });
+        </script>
+    </body>
+</html>
