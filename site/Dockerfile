@@ -8,6 +8,6 @@ RUN npm install express hbs
 RUN apk add --update docker openrc
 RUN rc-update add docker boot
 
-COPY main.js index.hbs /site
+COPY main.js index.hbs /site/
 
 CMD [ "node", "main.js" ]
