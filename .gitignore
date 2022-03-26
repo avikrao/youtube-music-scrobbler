@@ -9,3 +9,6 @@ headers_auth.json
 pinglog.txt
 scrobblelog.json 
 last_scrobble.log
+
+# Testing dir 
+testing/
