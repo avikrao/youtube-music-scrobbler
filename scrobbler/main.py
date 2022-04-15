@@ -50,6 +50,8 @@ def main(logs) :
         
         most_recent_track = {"title": raw_history["title"], "artist": raw_history["artists"][0]["name"], "album": raw_history["album"]["name"]}
         most_recent = [most_recent_track["title"].strip(), most_recent_track["artist"].strip(), most_recent_track["album"].strip()]
+        print(timestamp)
+        print(most_recent_track)
 
         if most_recent:
             new_entry = {
@@ -65,7 +67,7 @@ def main(logs) :
             }
 
         if not most_recent in logged_songs :
-
+            print("New song scrobbled!")
             network.scrobble(title=most_recent[0], artist=most_recent[1], album=most_recent[2], timestamp=time.time())
             logged_songs.append(most_recent)
             song_counter += 1
@@ -76,7 +78,7 @@ def main(logs) :
 
             logs.append(new_entry)
             if len(logs) > LOG_LENGTH:
-                logs = logs[(len(logs)-LOG_LENGTH):]
+                logs[:] = logs[(len(logs)-LOG_LENGTH):]
             
             with open(LOG_FILE, "w") as f:
                 json.dump(logs, f, indent=2)
@@ -84,6 +86,7 @@ def main(logs) :
         with open(PING_FILE, "w") as f:
             f.write(str(time.time()))
 
+        print()
         time.sleep(60)
 
 if __name__ == '__main__':
