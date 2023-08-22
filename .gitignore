@@ -1,14 +1,2 @@
-# NPM modules
-node_modules/
-
-# Auth keys
-auth.json
-headers_auth.json
-
-# Logfiles 
-pinglog.txt
-scrobblelog.json 
-last_scrobble.log
-
-# Testing dir 
-testing/
+# Authentication
+*.json
