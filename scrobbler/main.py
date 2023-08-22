@@ -22,7 +22,7 @@ class YTMusicScrobbler:
         self,
         ytm_auth_file: str,
         lastfm_auth_file: str,
-        poll_rate: float,
+        poll_rate: float = 30000,
         logging_level: int = logging.INFO,
     ):
         """
