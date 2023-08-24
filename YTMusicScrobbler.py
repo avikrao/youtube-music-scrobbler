@@ -87,7 +87,7 @@ class YTMusicScrobbler:
         while True:
             self.latest_pulled = self._get_latest_track()
             if self.latest_pulled != self.latest_scrobbled:
-                # self._scrobble_track(self.latest_pulled)
+                self._scrobble_track(self.latest_pulled)
                 self.logger.info(f"Scrobbled {self.latest_pulled}")
                 self.latest_scrobbled = self.latest_pulled
             time.sleep(self.poll_rate)
