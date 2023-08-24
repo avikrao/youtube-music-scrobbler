@@ -1,6 +1,6 @@
 """
 Avik Rao, 08/22/2023
-Pulls history from YouTube Music and uses it to scrobble tracks to Last.fm
+Pulls history from YouTube Music and uses it to scrobble tracks to Last.FM
 """
 from ytmusicapi import YTMusic
 from pylast import LastFMNetwork
@@ -91,14 +91,3 @@ class YTMusicScrobbler:
                 self.logger.info(f"Scrobbled {self.latest_pulled}")
                 self.latest_scrobbled = self.latest_pulled
             time.sleep(self.poll_rate)
-
-
-def main():
-    scrobbler = YTMusicScrobbler(
-        ytm_auth_file="ytmusic_auth.json", lastfm_auth_file="lastfm_auth.json"
-    )
-    scrobbler.start()
-
-
-if __name__ == "__main__":
-    main()
